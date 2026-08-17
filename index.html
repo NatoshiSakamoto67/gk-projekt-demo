@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>GK Projekt</title>
+    <meta name="theme-color" content="#D11F2D" />
+    <meta name="description" content="GK Projekt — Baustellen, Mängel, Aufmaß, Planung und Assistent für das Trockenbau-Team." />
+    <link rel="icon" type="image/png" sizes="32x32" href="/gk-projekt-demo/icons/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/gk-projekt-demo/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="GK Projekt" />
+    <script>
+      // Dunkelmodus VOR dem ersten Rendern grundieren. Ohne das blitzt bis zum
+      // Start von React kurz die helle Standardfläche auf — bei Nacht unangenehm.
+      // Bewusst nur der Grundton; die echten Paket-Variablen setzt useTheme.
+      try {
+        if (localStorage.getItem("gk_modus") === "dunkel") {
+          document.documentElement.dataset.modus = "dunkel";
+          document.documentElement.style.background = "#0f131a";
+          document.documentElement.style.colorScheme = "dark";
+        }
+      } catch (e) { /* Speicher gesperrt — dann eben ohne Grundierung */ }
+    </script>
+    <script>
+      // Selbstdiagnose statt weißer Seite.
+      //
+      // Bricht das Programm beim Start ab — etwa weil ein Browser eine
+      // Sprachfunktion nicht kennt oder eine Datei fehlt —, sieht der Nutzer
+      // sonst nur Weiß und kann nichts berichten. Diese wenigen Zeilen laufen
+      // VOR dem Programm, hängen an nichts und zeigen den Fehler im Klartext an.
+      (function () {
+        var gezeigt = false;
+        function zeige(titel, text) {
+          if (gezeigt) return;
+          gezeigt = true;
+          var w = document.getElementById("root") || document.body;
+          if (!w) return;
+          w.innerHTML =
+            '<div style="font:15px/1.5 -apple-system,BlinkMacSystemFont,system-ui,Segoe UI,sans-serif;' +
+            'color:#1a1d21;background:#fff;padding:24px;max-width:640px;margin:40px auto;' +
+            'border:1px solid #ddd;border-radius:12px">' +
+            '<div style="font-size:19px;font-weight:800;margin-bottom:8px">' + titel + "</div>" +
+            '<p style="margin:0 0 12px;color:#555">Bitte diesen Text weitergeben — daraus lässt sich die Ursache ablesen.</p>' +
+            '<pre style="white-space:pre-wrap;word-break:break-word;background:#f5f6f8;padding:12px;' +
+            'border-radius:8px;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;margin:0">' +
+            String(text).replace(/[<>&]/g, function (c) { return { "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]; }) +
+            "\n\n" + navigator.userAgent + "</pre></div>";
+        }
+        window.addEventListener("error", function (e) {
+          // Auch fehlgeschlagene Bilder lösen "error" aus — das ist harmlos und
+          // darf die Oberfläche nicht ersetzen. Nur echte Skriptfehler und ein
+          // nicht ladendes Programm-Bündel zählen.
+          var ziel = e.target;
+          var istBaustein = ziel && (ziel.tagName === "SCRIPT" || ziel.tagName === "LINK");
+          if (!e.message && !istBaustein) return;
+          zeige("Die Anwendung konnte nicht starten",
+            (e.message || ("Datei nicht geladen: " + (ziel.src || ziel.href || "?"))) +
+            "\n" + (e.filename || "") + (e.lineno ? ":" + e.lineno : ""));
+        }, true);
+        window.addEventListener("unhandledrejection", function (e) {
+          zeige("Die Anwendung konnte nicht starten", "Unbehandelt: " + ((e.reason && (e.reason.stack || e.reason.message)) || e.reason));
+        });
+        // Auffangnetz: Nach 8 Sekunden ohne Inhalt ist etwas schiefgegangen,
+        // auch wenn kein Fehler gemeldet wurde (z. B. Datei nie angekommen).
+        setTimeout(function () {
+          var r = document.getElementById("root");
+          if (r && r.childElementCount === 0) {
+            zeige("Die Anwendung wurde nicht geladen",
+              "Kein Fehler gemeldet, aber nach 8 Sekunden ist die Oberfläche leer.\n" +
+              "Meist: alte Fassung im Zwischenspeicher oder eine Datei wurde nicht geladen.\n" +
+              "Adresse: " + location.href);
+          }
+        }, 8000);
+      })();
+    </script>
+    <script type="module" crossorigin src="/gk-projekt-demo/assets/index-Ck-vhVsI.js"></script>
+    <link rel="stylesheet" crossorigin href="/gk-projekt-demo/assets/index-CQS7xSrY.css">
+  <link rel="manifest" href="/gk-projekt-demo/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/gk-projekt-demo/registerSW.js"></script></head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
